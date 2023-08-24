@@ -16,9 +16,12 @@
  - sequelize
  - tslib
  - typescript
+ - express-mysql-session
 
 # Dependências Dev
   - @types/express
+  - @types/bcrypt
+  - @types/express-session
 
 # Iniciar o Projeto
  - npm start 
