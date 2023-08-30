@@ -1,5 +1,5 @@
 const Dashboard = () => {
-    return 'Oi'
+    return 'DASHBOARD'
 }
 
 export default Dashboard;

@@ -17,6 +17,11 @@
  - tslib
  - typescript
  - express-mysql-session
+ - exphbs
+ - express-handlebars
+ - hbs
+ - nodemailer
+ - nodemailer-express-handlebars
 
 # Dependências Dev
   - @types/express
@@ -24,4 +29,8 @@
   - @types/express-session
 
 # Iniciar o Projeto
+ - npm i
  - npm start 
+
+ # Rotas
+  - Login: http://localhost:3000/admin/
