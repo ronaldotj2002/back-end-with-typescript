@@ -2,6 +2,7 @@ import AdminJS from 'adminjs'
 import AdminJSExpress from '@adminjs/express'
 import express from 'express'
 import AdminJsSequelize, { Resource } from '@adminjs/sequelize';
+import * as AdminJsMongoose from '@adminjs/mongoose';
 import { User } from './models/usuario.entity';
 import { Gasto } from './models/gasto.entity';
 import { generateResource } from './utils/model';
@@ -12,6 +13,9 @@ import bcrypt from 'bcrypt';
 import hbs from 'hbs';
 import Email from './utils/email';
 import dashboard from './routes/dashboard';
+import chat from './routes/chat';
+import { Friend } from './models/friend.entity';
+const socket = require ('socket.io');
 require('dotenv').config();
 
 const path = require('node:path');
@@ -22,6 +26,11 @@ const mysqlStore = require('express-mysql-session')(session);
 AdminJS.registerAdapter({
   Resource: AdminJsSequelize.Resource,
   Database: AdminJsSequelize.Database,
+})
+
+AdminJS.registerAdapter({
+  Resource: AdminJsMongoose.Resource,
+  Database: AdminJsMongoose.Database,
 })
 
 const bodyParser = require('body-parser')
@@ -70,7 +79,8 @@ const start = async () => {
           }
         }
         }),
-      generateResource(Gasto)
+      generateResource(Gasto),
+      // generateResource(Friend)
     ],
     rootPath: '/admin',
     dashboard: {
@@ -102,7 +112,7 @@ const start = async () => {
     {
       authenticate: async (email: string, senha: string) => {
         const user = await User.findOne({ where: {email}})
-
+        // return user;
         if(user) {
           const comparar = await bcrypt.compare(senha, user.getDataValue('senha'))
           if(comparar) {
@@ -135,9 +145,19 @@ const start = async () => {
   app.use(bodyParser.urlencoded({ extended: true }))
 
   app.use('/dashboard', dashboard)
+  app.use('/chat', chat)
   
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`AdminJS started on http://localhost:${PORT}`)
+  })
+
+  const { Server } = require('socket.io')
+  const io: any = new Server(server)
+  io.on('connection', (socket:any) => {
+    console.log(socket.id)
+    socket.on('SEND_MESSAGE', (data:any) => {
+      io.emit('RECEIVE_MESSAGE', data)
+    })
   })
 }
 
